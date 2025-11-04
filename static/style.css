@@ -355,7 +355,7 @@ html, body {
 
 /* === DARK MODE OVERRIDES === */
 body.dark {
-  background: url('https://raw.githubusercontent.com/Abhiraj1121/GGPAI-1.0/main/static/jarvis_bg.jpg') no-repeat center center fixed;
+  background: url('static/jarvis_bg.jpg') no-repeat center center fixed;
   background-size: cover;
   color: #dbeafe; /* optional: light text for contrast */
 }
@@ -480,7 +480,7 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  background: url('https://raw.githubusercontent.com/Abhiraj1121/GGPAI-1.0/main/static/jarvis_bg.jpg') no-repeat center center fixed;
+  background: url('static/jarvis_bg.jpg') no-repeat center center fixed;
   background-size: cover;
 }
 
@@ -621,7 +621,7 @@ body.dark {
   margin: 0;
   padding: 0;
   font-family: 'Segoe UI', sans-serif;
-  background: url('https://raw.githubusercontent.com/Abhiraj1121/GGPAI-1.0/main/static/jarvis_bg.jpg') no-repeat center center fixed;
+  background: url('static/jarvis_bg.jpg') no-repeat center center fixed;
   background-size: cover;
   color: #dbeafe;
 }
