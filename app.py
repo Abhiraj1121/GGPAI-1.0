@@ -42,7 +42,7 @@ def ai_query(user_input, history=None, system_note=None):
     }
 
     system_note = system_note or (
-        "You are Jarvis, a helpful and knowledgeable assistant. "
+        "You are GURUBot, a helpful and knowledgeable assistant. "
         "Respond clearly and concisely. If the question is specifically about "
         f"{SCHOOL_NAME}, provide accurate school-specific answers based on policies and public info. "
         "Do not invent personal or private data. "
@@ -77,16 +77,16 @@ def ai_query(user_input, history=None, system_note=None):
                     return choice["text"].strip()
             if "text" in data:
                 return data["text"].strip()
-            return "Jarvis: AI response format unexpected."
-        return f"Jarvis: AI error {resp.status_code}: {resp.text}"
+            return "GURUBot: AI response format unexpected."
+        return f"GURUBot: AI error {resp.status_code}: {resp.text}"
     except requests.exceptions.ReadTimeout:
-        return "Jarvis: Sorry, the AI server took too long to respond. Please try again shortly."
+        return "GURUBot: Sorry, the AI server took too long to respond. Please try again shortly."
     except Exception as e:
-        return f"Jarvis: AI error: {str(e)}"
+        return f"GURUBot: AI error: {str(e)}"
 
 @app.route("/")
 def index():
-    return render_template("index.html", school_name=SCHOOL_NAME, bot_name="Jarvis")
+    return render_template("index.html", school_name=SCHOOL_NAME, bot_name="GURUBot")
 
 @app.route("/api/chat", methods=["POST"])
 def chat():
@@ -95,7 +95,7 @@ def chat():
     history = payload.get("history", [])
 
     if not msg:
-        return jsonify({"reply": "Jarvis: It seems like your message is empty. How can I assist you today?", "source": "system"})
+        return jsonify({"reply": "GURUBot: It seems like your message is empty. How can I assist you today?", "source": "system"})
 
     local = local_lookup(msg)
     if local:
