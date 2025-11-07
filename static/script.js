@@ -12,12 +12,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const chips = document.querySelectorAll('.chip');
   const avatar = document.querySelector('.avatar');
   const listeningAnimation = document.getElementById('listeningAnimation');
+  const wakeMicButton = document.getElementById('wakeMicButton'); // ✅ added
 
   // 🔁 State
   let isMuted = false;
   let voiceOnly = false;
   let currentSpeech = null;
   let typingBubble = null;
+  let recognition;
 
   // 🖋 Typing Animation
   function typeText(text, element, speed = 40, callback = null) {
@@ -74,14 +76,12 @@ document.addEventListener('DOMContentLoaded', () => {
       <div style="display:flex;align-items:center;gap:8px">
       <div class="dot"></div><div class="dot"></div><div class="dot"></div>
       </div>`;
-      chat.appendChild(typingBubble);
+    chat.appendChild(typingBubble);
 
-  // ✅ This ensures it scrolls *after* DOM update
-  requestAnimationFrame(() => {
-    chat.scrollTop = chat.scrollHeight;
-  });
-}
-
+    requestAnimationFrame(() => {
+      chat.scrollTop = chat.scrollHeight;
+    });
+  }
 
   function removeTyping() {
     if (typingBubble) {
@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function sendMessage(text) {
     const cleaned = text.trim();
     if (!cleaned) {
-      addBubble('GURUBot: Please enter a valid question.', 'bot');
+      addBubble('Astra: Please enter a valid question.', 'bot');
       return;
     }
 
@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
     addTyping();
 
     try {
-      const res = await fetch('https://ggpai-1-0.onrender.com/api/chat', {
+      const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: cleaned })
@@ -116,12 +116,23 @@ document.addEventListener('DOMContentLoaded', () => {
       const isHindi = /[\u0900-\u097F]/.test(res.reply);
 
       setTimeout(() => {
-        addBubble(`GURUBot: ${res.reply}`, 'bot', isHindi ? '🗣️ Spoken in Hindi' : '🗣️ Spoken in English', true);
-        speak(res.reply);
-      }, 500);
+  addBubble(
+    `Astra: ${res.reply}`,
+    'bot',
+    isHindi ? '🗣️ Spoken in Hindi' : '🗣️ Spoken in English',
+    true
+  );
+
+  // 🧹 Clean text before speaking (remove markdown and HTML)
+  const cleanReply = res.reply
+    .replace(/(\*\*|__|[_*`])/g, '')  // remove markdown like **, _, *
+    .replace(/<[^>]*>/g, '');         // remove any HTML tags
+
+  speak(cleanReply);
+}, 500);
     } catch (err) {
       removeTyping();
-      addBubble('GURUBot: Sorry, something went wrong. Try again.', 'bot');
+      addBubble('Astra: Sorry, something went wrong. Try again.', 'bot');
       console.error("Error sending message:", err);
     }
   }
@@ -158,7 +169,9 @@ document.addEventListener('DOMContentLoaded', () => {
       utter.onend = () => {
         avatar?.classList.remove('voice-anim');
         listeningAnimation.style.display = 'none';
-        if (voiceOnly && recognition) recognition.start();
+        if (voiceOnly && recognition) {
+          wakeMicButton.style.display = 'flex'; // ✅ show wake mic when done speaking
+        }
       };
     };
 
@@ -170,7 +183,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // 🎤 Voice Recognition
-  let recognition;
   if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     recognition = new SR();
@@ -181,6 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
       mic.classList.add('mic-active');
       micStatus.textContent = '🎤 Listening...';
       listeningAnimation.style.display = 'block';
+      wakeMicButton.style.display = 'none'; // ✅ hide wake mic when listening
     };
 
     recognition.onresult = e => {
@@ -193,16 +206,28 @@ document.addEventListener('DOMContentLoaded', () => {
       mic.classList.remove('mic-active');
       micStatus.textContent = '';
       listeningAnimation.style.display = 'none';
+
+      if (voiceOnly) {
+        wakeMicButton.style.display = 'flex'; // ✅ show wake mic after timeout
+      }
     };
 
     recognition.onerror = () => {
       mic.classList.remove('mic-active');
       micStatus.textContent = '';
       listeningAnimation.style.display = 'none';
-      addBubble('GURUBot: Voice input failed. Try typing instead.', 'bot');
+      addBubble('Astra: Voice input failed. Try typing instead.', 'bot');
     };
 
     mic.addEventListener('click', () => recognition.start());
+
+    // ✅ Wake Mic Button click
+    wakeMicButton.addEventListener('click', () => {
+      if (recognition && voiceOnly) {
+        wakeMicButton.style.display = 'none';
+        recognition.start();
+      }
+    });
   } else {
     mic.style.opacity = 0.45;
     mic.title = 'Voice input not supported';
@@ -230,9 +255,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (voiceOnly && recognition) {
       listeningAnimation.style.display = 'block';
-      speak("Hello, I’m GURUBot. I’m listening.");
+      speak("Hello, I’m Astra. I’m listening.");
+      wakeMicButton.style.display = 'none';
+    } else {
+      wakeMicButton.style.display = 'none';
     }
   });
+  // 🎹 Keyboard Shortcut — Spacebar activates Wake Mic
+document.addEventListener('keydown', (event) => {
+  // Check if Spacebar is pressed, and no input box is focused
+  if (event.code === 'Space' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+    event.preventDefault(); // prevent page scroll
+
+    if (voiceOnly && recognition && wakeMicButton.style.display === 'flex') {
+      // Trigger the same behavior as clicking the wake mic
+      wakeMicButton.click();
+    }
+  }
+});
+
+
 
   chips.forEach(c => c.addEventListener('click', () => {
     const q = c.dataset.q;
@@ -240,13 +282,12 @@ document.addEventListener('DOMContentLoaded', () => {
     sendMessage(q);
   }));
 
-  // 🌞 Initial Theme
   themeToggle.textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
 
-  // 👋 Welcome Message
-  addBubble('GURUBot: Hello. I am GURUBot, your assistant for Guru Gobind Singh Public School, Sector 5, Bokaro Steel City, Jharkhand, India.', 'bot', '', true);
-  speak("नमस्ते! मैं GURUBot हूँ, आपका स्कूल सहायक। आप मुझसे कुछ भी पूछ सकते हैं।");
+  addBubble('Astra: Hello. I am Astra, your assistant for Guru Gobind Singh Public School, Sector 5, Bokaro Steel City, Jharkhand, India.', 'bot', '', true);
+  speak("नमस्ते! मैं Astra हूँ, आपका स्कूल सहायक। आप मुझसे कुछ भी पूछ सकते हैं।");
 });
+
 function autoScroll() {
   const chat = document.getElementById('chat');
   requestAnimationFrame(() => {
