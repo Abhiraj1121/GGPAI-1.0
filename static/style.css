@@ -1,0 +1,1178 @@
+:root {
+  --bg: #f5f7ff;
+  --card: #ffffff;
+  --accent: #7f5af0;
+  --accent-light: #dcd6ff;
+  --muted: #6b7280;
+  --bot: #e0f0ff;
+  --user: #1f2937;
+  --highlight: #ffe066;
+  --glass: rgba(255, 255, 255, 0.2);
+  --radius: 14px;
+  --shadow: 0 8px 30px rgba(18,24,51,0.08);
+  --glass-border: rgba(127, 90, 240, 0.2);
+}
+
+* {
+  box-sizing: border-box;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: Inter, system-ui, Segoe UI, Roboto, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  background: linear-gradient(180deg, #7f5af0, #5f3dc4);
+  color: var(--user);
+  -webkit-font-smoothing: antialiased;
+}
+
+.chat {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(127, 90, 240, 0.2);
+}
+
+.chat-header {
+  background: linear-gradient(90deg, #ffffff, #fbfdff);
+}
+
+.app {
+  max-width: 1100px;
+  width: 100%;
+  margin: 28px auto;
+  display: grid;
+  grid-template-columns: 290px 1fr;
+  gap: 20px;
+  padding: 18px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.1); /* optional glass */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: var(--shadow);
+  min-height: 80vh; /* or 100vh if you want full screen */
+}
+
+/* SIDEBAR */
+.sidebar {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #fff, #fbfdff);
+  border: 1px solid var(--glass-border);
+}
+
+.brand {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  object-fit: cover;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.brand h1 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.school {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.chip {
+  background: var(--highlight);
+  border: none;
+  color: #1f2937;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.info {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.credits {
+  text-align: center;
+  color: var(--muted);
+  margin-top: auto;
+}
+
+/* CHAT AREA */
+.chat-area {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: transparent; /* removes light background */
+}
+
+/* CHAT HEADER with glass effect */
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.15); /* frosted glass */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 6px 18px rgba(127, 90, 240, 0.2); /* purple glow */
+}
+
+
+.header-left {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #7f5af0, #66b3ff);
+  object-fit: cover;
+}
+
+.avatar.user {
+  margin-left: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.name {
+  font-weight: 700;
+}
+
+.status {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.header-actions button {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+/* CHAT BOX */
+.chat {
+  flex: 1;
+  padding: 18px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.15); /* optional glass background */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 20px rgba(127, 90, 240, 0.3);
+  overflow: auto;
+}
+
+
+.bubble {
+  display: inline-block;
+  max-width: 74%;
+  padding: 12px 14px;
+  margin: 8px 0;
+  border-radius: 12px;
+  line-height: 1.35;
+  box-shadow: 0 6px 18px rgba(20,30,60,0.04);
+  opacity: 0;
+  transform: translateY(10px);
+  animation: pop .28s forwards;
+}
+
+.bubble.bot {
+  background: rgba(255, 255, 255, 0.2); /* frosted glass */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--user);
+  border-left: 4px solid var(--accent);
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 12px;
+  box-shadow: 0 6px 18px rgba(127, 90, 240, 0.2);
+}
+
+.bubble.user {
+  background: rgba(127, 90, 240, 0.3); /* purple glass */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: white;
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 12px;
+  margin-left: auto;
+  text-align: right;
+  box-shadow: 0 6px 18px rgba(127, 90, 240, 0.3);
+}
+
+.meta {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 6px;
+  opacity: 0.9;
+}
+
+/* typing indicator */
+.typing {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  background: #8aa7ff;
+  border-radius: 50%;
+  opacity: 0.9;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0% { opacity: .2; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-4px); }
+  100% { opacity: .2; transform: translateY(0); }
+}
+
+@keyframes pop {
+  to { opacity: 1; transform: none; }
+}
+
+/* Composer */
+.composer {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: transparent;
+  align-items: center;
+}
+
+.controls-left, .controls-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon-btn {
+  border: none;
+  background: linear-gradient(90deg, #fff, #fbfdff);
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(18,24,51,0.04);
+}
+
+#msg {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #e6f0ff;
+  outline: none;
+  font-size: 15px;
+}
+
+/* Glowing Send Button */
+.send-btn {
+  margin: 12px;
+  padding: 15px 40px;
+  border: none;
+  outline: none;
+  color: #FFF;
+  cursor: pointer;
+  position: relative;
+  z-index: 0;
+  border-radius: 12px;
+  font-weight: 600;
+  background-color: #333;
+}
+
+.send-btn::after {
+  content: "";
+  z-index: -1;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: #333;
+  left: 0;
+  top: 0;
+  border-radius: 10px;
+}
+
+.send-btn::before {
+  content: "";
+  background: linear-gradient(
+    45deg,
+    #FF0000, #FF7300, #FFFB00, #48FF00,
+    #00FFD5, #002BFF, #FF00C8, #FF0000
+  );
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  background-size: 600%;
+  z-index: -1;
+  width: calc(100% + 4px);
+  height: calc(100% + 4px);
+  filter: blur(8px);
+  animation: glowing 20s linear infinite;
+  transition: opacity .3s ease-in-out;
+  border-radius: 10px;
+  opacity: 0;
+}
+
+.send-btn:hover::before {
+  opacity: 1;
+}
+
+.send-btn:active::after {
+  background: transparent;
+}
+
+/* === DARK MODE OVERRIDES === */
+body.dark {
+  background: url('https://motionbgs.com/media/8713/qiuyuan-vs-geshu-lin-wuthering-waves.960x540.mp4') no-repeat center center fixed;
+  background-size: cover;
+  color: #dbeafe; /* optional: light text for contrast */
+}
+
+html.dark, body.dark {
+  background: linear-gradient(180deg, #071024, #071a2a);
+}
+
+body.dark .app {
+  background: linear-gradient(180deg, rgba(8,15,30,0.6), rgba(5,10,20,0.65));
+}
+
+body.dark .sidebar {
+  background: linear-gradient(180deg, #071028, #071224);
+  border: 1px solid rgba(255,255,255,0.03);
+}
+
+body.dark .chat-area {
+  background: linear-gradient(180deg, #0a1a2f, #0a1a2f);
+}
+
+body.dark .chat {
+  background: linear-gradient(180deg, #0a1a2f, #0a1a2f);
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+body.dark .chat-header {
+  background: linear-gradient(90deg, #0a1a2f, #0a1a2f);
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+body.dark .composer {
+  background: #0a1a2f;
+}
+
+body.dark .bubble.bot {
+  background: linear-gradient(90deg, #0b2546, #07213a);
+  color: #dbeafe;
+}
+
+body.dark .bubble.user {
+  background: linear-gradient(90deg, #7f5af0, #5f3dc4);
+  color: white;
+}
+
+body.dark .send-btn {
+  background-color: #222;
+  color: #fff;
+}
+
+body.dark .chip {
+  background: #444;
+  color: #ffe066;
+}
+
+body.dark .chat-header {
+  background: linear-gradient(90deg, #0a1a2f, #0a1a2f) !important;
+  border: 1px solid rgba(255,255,255,0.05) !important;
+  color: #dbeafe !important;
+}
+
+html.dark, body.dark {
+  background: linear-gradient(180deg, #071024, #071a2a);
+}
+
+body.dark .app {
+  background: linear-gradient(180deg, #0a1a2f, #071a2a);
+}
+
+body.dark .chat-area {
+  background: linear-gradient(180deg, #0a1a2f, #0a1a2f);
+}
+
+body.dark .composer {
+  background: #0a1a2f;
+}
+
+body.dark .sidebar {
+  background: linear-gradient(180deg, #071028, #071224);
+}
+
+/* === FINAL DARK MODE FIXES === */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body.dark {
+  background: linear-gradient(180deg, #071024, #071a2a);
+  color: #dbeafe;
+}
+
+body.dark .app {
+  background: linear-gradient(180deg, #0a1a2f, #071a2a);
+}
+
+body.dark .chat-area {
+  background: linear-gradient(180deg, #0a1a2f, #0a1a2f);
+}
+
+body.dark .chat {
+  background: linear-gradient(180deg, #0a1a2f, #0a1a2f);
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+body.dark .composer {
+  background: #0a1a2f;
+}
+
+body.dark .sidebar {
+  background: linear-gradient(180deg, #071028, #071224);
+  border: 1px solid rgba(255,255,255,0.03);
+}
+
+body {
+  background: linear-gradient(180deg, #7f5af0, #5f3dc4); /* Purple gradient */
+}
+
+/* === Center Swastik on the Page === */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: url('https://motionbgs.com/media/8713/qiuyuan-vs-geshu-lin-wuthering-waves.960x540.mp4') no-repeat center center fixed;
+  background-size: cover;
+}
+
+/* === Dark Mode Glass Styling === */
+body.dark .chat,
+body.dark .app,
+body.dark .chat-header {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* === Responsive Layout for Mobile === */
+@media (max-width: 768px) {
+  .app {
+    grid-template-columns: 1fr;
+  }
+}
+
+body.dark {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #1e1e2f, #2c2c3e);
+  color: #dbeafe;
+}
+
+.app {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  height: 100vh;
+}
+
+.sidebar {
+  background: rgba(0, 0, 0, 0.4);
+  padding: 20px;
+  backdrop-filter: blur(10px);
+  color: #fff;
+}
+
+.logo h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.logo p {
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+.chips button {
+  display: block;
+  margin: 10px 0;
+  padding: 10px;
+  background: #7f5af0;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.chat {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 10px 16px;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  background: #7f5af0;
+  border-radius: 50%;
+}
+
+.chat-area {
+  flex: 1;
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bubble {
+  padding: 12px 16px;
+  border-radius: 12px;
+  max-width: 70%;
+  font-size: 14px;
+}
+
+.bubble.bot {
+  background: rgba(255, 255, 255, 0.1);
+  align-self: flex-start;
+}
+
+.bubble.user {
+  background: #7f5af0;
+  align-self: flex-end;
+  color: white;
+}
+
+.composer {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.composer input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.composer button {
+  padding: 10px 16px;
+  background: #7f5af0;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+}
+
+/* === Dark Mode Animated Gradient Background === */
+body.dark {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: url('https://motionbgs.com/media/8713/qiuyuan-vs-geshu-lin-wuthering-waves.960x540.mp4') no-repeat center center fixed;
+  background-size: cover;
+  color: #dbeafe;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: transparent;
+}
+
+.avatar img.chat-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* Mic Icon Styling */
+.mic-icon {
+  width: 24px;
+  height: 24px;
+  filter: brightness(1.2);
+  stroke: #ffffff;
+  transition: transform 0.3s ease, stroke 0.3s ease;
+}
+
+/* Mic Button Styling with Pulse */
+.icon-btn {
+  background: #7A3EF5;
+  border: none;
+  border-radius: 50%;
+  padding: 12px;
+  cursor: pointer;
+  animation: pulse 2s infinite;
+  box-shadow: 0 0 10px rgba(122, 62, 245, 0.6);
+  transition: transform 0.3s ease;
+}
+
+.icon-btn:hover .mic-icon {
+  transform: scale(1.2);
+  stroke: #00f0ff;
+}
+
+/* Pulse Animation */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(122, 62, 245, 0.7);
+  }
+  70% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 15px rgba(122, 62, 245, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(122, 62, 245, 0);
+  }
+}
+
+.icon-btn.listening {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(127, 90, 240, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(127, 90, 240, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(127, 90, 240, 0); }
+}
+
+.mic-speaking {
+  box-shadow: 0 0 10px 2px #00f;
+  animation: pulse 1s infinite;
+}
+@keyframes pulse {
+  0% { box-shadow: 0 0 10px 2px #00f; }
+  50% { box-shadow: 0 0 20px 4px #0ff; }
+  100% { box-shadow: 0 0 10px 2px #00f; }
+}
+body.dark .chat-header {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mic-active {
+  animation: pulse 1s infinite;
+  color: #ff4d4d;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.6; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.mic-status {
+  font-size: 0.85rem;
+  color: #ff4d4d;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+/* 🔴 Mic active animation */
+.mic-active {
+  animation: pulse 1s infinite;
+  color: #ff4d4d;
+}
+
+/* 🎤 Mic status text */
+.mic-status {
+  font-size: 0.85rem;
+  color: #ff4d4d;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+/* 🔊 Speaking animation on avatar */
+.voice-anim {
+  animation: pulse 1s infinite;
+}
+
+/* 🌊 Pulse keyframes */
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.6; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* 🎙️ Voice-only mode hides chat and input */
+.voice-only .chat,
+.voice-only .composer {
+  display: none;
+}
+
+.voice-only .chat-header {
+  justify-content: center;
+}
+
+.chat-area {
+  position: relative;
+}
+
+/* A dark background is recommended to see the glow effects */
+body {
+  background-color: #1a1a2e; /* Dark background */
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+.listening-animation {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  pointer-events: none;
+  perspective: 1000px; /* Enables 3D effect */
+}
+
+.glow-ring {
+  position: relative;
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  background: conic-gradient(
+    #ff6b6b,
+    #f7b731,
+    #20bf6b,
+    #4b7bec,
+    #a55eea,
+    #ff6b6b
+  );
+  animation: ringSpin 3s linear infinite, breathe 2.5s ease-in-out infinite;
+  box-shadow: 0 0 25px rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-style: preserve-3d;
+  mask: radial-gradient(transparent 45%, black 46%);
+  -webkit-mask: radial-gradient(transparent 45%, black 46%);
+}
+
+/* Inner glow core */
+.glow-ring::before {
+  content: '';
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.2), transparent);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+}
+
+/* Ripple layers */
+.ripple {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  border: 2px solid #fff204;
+  border-radius: 50%;
+  animation: ripplePulse 2.5s ease-out infinite;
+  opacity: 0.6;
+}
+
+.ripple:nth-child(2) {
+  animation-delay: 1.2s;
+}
+
+/* Animations */
+@keyframes ringSpin {
+  0% { transform: rotateY(0deg) rotateZ(0deg); }
+  100% { transform: rotateY(360deg) rotateZ(360deg); }
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.15); opacity: 0.8; }
+}
+
+@keyframes ripplePulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+#send {
+  position: relative;
+  padding: 10px 20px;
+  font-size: 16px;
+  color: white;
+  background: black;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  z-index: 1;
+  overflow: hidden;
+}
+
+#send::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, red, orange, yellow, green, cyan, blue, violet);
+  border-radius: 10px;
+  z-index: -1;
+  animation: rgbGlow 4s linear infinite;
+  filter: blur(6px);
+}
+
+@keyframes rgbGlow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+#send:hover::before {
+  filter: blur(10px);
+  opacity: 1;
+}
+
+#send {
+  position: relative;
+  padding: 10px 20px;
+  font-size: 16px;
+  color: white;
+  background: black;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  z-index: 1;
+  overflow: hidden;
+  animation: rgbShadow 3s linear infinite;
+}
+
+/* RGB ring border */
+#send::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  right: -6px;
+  bottom: -6px;
+  border-radius: 60px;
+  background: linear-gradient(45deg, red, orange, yellow, green, cyan, blue, violet);
+  z-index: -1;
+  animation: rgbRing 4s linear infinite;
+  filter: blur(8px);
+}
+
+@keyframes rgbShadow {
+  0%   { box-shadow: 0 0 12px red; }
+  25%  { box-shadow: 0 0 12px yellow; }
+  50%  { box-shadow: 0 0 12px lime; }
+  75%  { box-shadow: 0 0 12px cyan; }
+  100% { box-shadow: 0 0 12px magenta; }
+}
+
+/* RGB ring animation */
+@keyframes rgbRing {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.ai-text {
+  font-family: inherit;
+  white-space: pre-wrap;
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ========================= */
+/* 📱 Mobile Optimization */
+/* ========================= */
+
+@media (max-width: 768px) {
+  .app {
+    display: flex;
+    flex-direction: column;
+    padding: 12px;
+    margin: 0 auto;
+    border-radius: 0;
+    min-height: 100vh;
+  }
+
+  .sidebar {
+    order: 2;
+    padding: 12px;
+  }
+
+  .chat-area {
+    order: 1;
+  }
+}
+
+@media (max-width: 600px) {
+  .bubble {
+    max-width: 90%;
+    font-size: 1rem;
+    padding: 10px 12px;
+  }
+
+  .chip {
+    font-size: 0.9rem;
+    padding: 6px 10px;
+  }
+
+  .chat {
+    padding: 12px;
+  }
+
+  .chat-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .header-actions button {
+    font-size: 16px;
+  }
+
+  .avatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  .logo {
+    width: 48px;
+    height: 48px;
+  }
+
+  .quick-actions {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+}
+
+.composer-container {
+  width: 100%;
+  padding: 0 12px;
+}
+
+.ai-text a {
+  color: #7f5af0;
+  text-decoration: underline;
+}
+
+body, html {
+  overflow: auto;
+}
+body.dark .chat-header {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+body {
+  background-color: #0d0d1a;
+  background-image: url("https://thumbs.dreamstime.com/b/autumn-landscape-nature-fall-scene-park-covered-yel-yellow-foliage-tranquil-background-colorful-forest-sunlight-130360279.jpg?w=768");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+/* Scrollable Chat Area */
+#chat {
+  height: 100%;
+  max-height: calc(100vh - 200px); /* adjust based on your layout */
+  overflow-y: auto;                /* enables inner scroll */
+  scroll-behavior: smooth;         /* smooth movement */
+  padding: 20px;
+}
+
+/* 🎨 Custom Scrollbar Styling */
+#chat::-webkit-scrollbar {
+  width: 8px;                         /* thickness of scrollbar */
+}
+
+#chat::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);  /* background track color */
+  border-radius: 10px;
+}
+
+#chat::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #7f5af0, #5f3dc4);  /* thumb color */
+  border-radius: 10px;
+}
+
+#chat::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #9d7cf8, #7b5de3);  /* hover effect */
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #7f5af0, #5f3dc4);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* For Firefox */
+#chat {
+  scrollbar-width: thin;
+  scrollbar-color: linear-gradient(135deg, #7f5af0, #5f3dc4) rgba(255, 255, 255, 0.1);
+}
+
+.wake-mic {
+  position: fixed;
+  bottom: 9%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #4c00ff, #b606e2);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  padding: 18px;
+  box-shadow: 0 4px 20px rgba(0, 128, 255, 0.5);
+  cursor: pointer;
+  z-index: 9999;
+  display: none; /* hidden until voice-only mode */
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.wake-mic:hover {
+  transform: translateX(-50%) scale(1.08);
+  box-shadow: 0 6px 24px rgba(97, 9, 220, 0.7);
+}
+
+.wake-mic::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(0, 191, 255, 0.5);
+  animation: pulseGlow 2.5s infinite;
+  z-index: -1;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.2); opacity: 1; }
+}
+
+/* 🌌 Live Video Background */
+#bgVideo {
+  position: fixed;
+  top: 0;
+  left: 0;
+  min-width: 100%;
+  min-height: 100%;
+  object-fit: cover;
+  z-index: -1; /* behind everything */
+  filter: brightness(0.35) blur(2px); /* dark & cinematic */
+}
+
+/* keep UI on top of video */
+.app, .chat-area, .sidebar, .composer, .chat-header {
+  position: relative;
+  z-index: 10;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+/* 🌌 Swastik Live Video Background (Dark Mode Only) */
+body.dark #bgVideo {
+  position: fixed;
+  top: 0;
+  left: 0;
+  min-width: 100%;
+  min-height: 100%;
+  object-fit: cover;
+  z-index: -1;
+  filter: brightness(0.35) blur(2px);
+}
+
+/* Hide video in Light Mode */
+body:not(.dark) #bgVideo {
+  display: none;
+}
+
+/* Keep UI visible above the video */
+.app, .chat-area, .sidebar, .composer-container, .chat-header {
+  position: relative;
+  z-index: 10;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
