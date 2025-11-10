@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
     addTyping();
 
     try {
-      const res = await fetch('/api/chat', {
+      const res = await fetch('https://ggpai-1-0.onrender.com/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: cleaned })
