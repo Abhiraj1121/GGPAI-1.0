@@ -89,7 +89,15 @@ def ai_query(user_input, history=None, system_note=None):
             if "text" in data:
                 return data["text"].strip()
             return "Swastik: AI response format unexpected."
-        return f"Swastik: AI error {resp.status_code}: {resp.text}"
+
+        # ✅ Custom handling for unauthorized or server issues
+        if resp.status_code == 401:
+            return "Swastik: The server is currently closed. Please try again later."
+        elif resp.status_code >= 500:
+            return "Swastik: The AI server encountered an internal error. Try again in a while."
+        else:
+            return f"Swastik: AI error {resp.status_code}. Please try again later."
+
     except requests.exceptions.ReadTimeout:
         return "Swastik: Sorry, the AI server took too long to respond. Please try again shortly."
     except Exception as e:
