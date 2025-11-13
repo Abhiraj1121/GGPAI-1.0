@@ -3,20 +3,20 @@ import json
 from flask import Flask, render_template, request, jsonify
 import requests
 from dotenv import load_dotenv
-from flask_cors import CORS  # ✅ ADD THIS
+from flask_cors import CORS
 
-# Load environment variables (keep .env private)
+# 🌐 Load environment variables
 load_dotenv()
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
-CORS(app)  # ✅ ENABLE CORS for GitHub Pages → Render connection
+CORS(app)
 
-# Config (set in your .env)
-AI_API_URL = os.getenv("AI_API_URL")  # e.g. https://openrouter.ai/api/v1/chat/completions
+# 🏫 Configuration
+AI_API_URL = os.getenv("AI_API_URL")
 AI_API_KEY = os.getenv("AI_API_KEY")
 SCHOOL_NAME = "Guru Gobind Singh Public School (GGPS)"
 
-# Local Q&A file
+# 📚 Load Local Q&A File
 LOCAL_QA_PATH = os.path.join(os.path.dirname(__file__), "data", "school_data.txt")
 local_qa = {}
 if os.path.exists(LOCAL_QA_PATH):
@@ -30,11 +30,13 @@ if os.path.exists(LOCAL_QA_PATH):
                 local_qa[q] = a
 
 def local_lookup(query):
+    """Simple local lookup"""
     return local_qa.get(query.lower().strip())
 
+# 🤖 AI Query Function
 def ai_query(user_input, history=None, system_note=None):
     if not AI_API_URL or not AI_API_KEY:
-        return "AI backend not configured. Please set AI_API_URL and AI_API_KEY environment variables."
+        return "Swastik: AI backend not configured. Please contact admin."
 
     headers = {
         "Authorization": f"Bearer {AI_API_KEY}",
@@ -51,7 +53,7 @@ def ai_query(user_input, history=None, system_note=None):
         "Do not include personal, private, or confidential data. "
         "If someone asks for your name, always reply: 'I am Swastik, your smart school assistant.' "
         "You were developed by Abhi Raj Singh and his team from Class 11/C as part of their school project. "
-        f"Contact information of {SCHOOL_NAME}: Phone: +91-06542-268589 , Email:ggpsbok@rediffmail.com . "
+        f"Contact information of {SCHOOL_NAME}: Phone: +91-06542-268589 , Email: ggpsbok@rediffmail.com . "
         "Fee Payment Link: https://feepayment.ggpsbokaro.com/parent/Login . "
         "School Facebook Page: https://www.facebook.com/p/GGPSBokaro-100057053245791/ . "
         "The current principal is Mr. Abhishek Kumar (joined in September 2025). "
@@ -60,8 +62,7 @@ def ai_query(user_input, history=None, system_note=None):
         "The term swastik (or swastika) originates from the Sanskrit word for well-being and is an ancient symbol "
         "of good fortune and prosperity in many cultures, most notably Hinduism, Buddhism, and Jainism. "
         "You are female (She/Her)."
-        )
-
+    )
 
     messages = [{"role": "system", "content": system_note}]
     if history and isinstance(history, list):
@@ -79,6 +80,15 @@ def ai_query(user_input, history=None, system_note=None):
 
     try:
         resp = requests.post(AI_API_URL, headers=headers, json=body, timeout=30)
+
+        # 🔧 Handle known errors
+        if resp.status_code == 401:
+            return "Swastik: The AI server is currently closed. Please try again later."
+        if resp.status_code == 429:
+            return "Swastik: The server is receiving too many requests. Please wait a bit and try again."
+        if resp.status_code == 500:
+            return "Swastik: The AI server encountered an internal error. Please retry later."
+
         if resp.status_code == 200:
             data = resp.json()
             if "choices" in data and len(data["choices"]) > 0:
@@ -90,12 +100,15 @@ def ai_query(user_input, history=None, system_note=None):
             if "text" in data:
                 return data["text"].strip()
             return "Swastik: AI response format unexpected."
+
         return f"Swastik: AI error {resp.status_code}: {resp.text}"
+
     except requests.exceptions.ReadTimeout:
         return "Swastik: Sorry, the AI server took too long to respond. Please try again shortly."
     except Exception as e:
-        return f"Swastik: AI error: {str(e)}"
+        return f"Swastik: Unexpected server error — {str(e)}"
 
+# 🌐 Routes
 @app.route("/")
 def index():
     return render_template("index.html", school_name=SCHOOL_NAME, bot_name="Swastik")
@@ -107,14 +120,20 @@ def chat():
     history = payload.get("history", [])
 
     if not msg:
-        return jsonify({"reply": "Swastik: It seems like your message is empty. How can I assist you today?", "source": "system"})
+        return jsonify({
+            "reply": "Swastik: It seems like your message is empty. How can I assist you today?",
+            "source": "system"
+        })
 
+    # 🎯 Local lookup first
     local = local_lookup(msg)
     if local:
         return jsonify({"reply": local, "source": "local"})
 
+    # 🌐 Fallback to AI
     reply = ai_query(msg, history=history)
     return jsonify({"reply": reply, "source": "ai"})
 
+# 🖥️ Run App
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
