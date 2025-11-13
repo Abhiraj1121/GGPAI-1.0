@@ -1176,3 +1176,13 @@ body:not(.dark) #bgVideo {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
+
+.bubble a {
+  color: #7f5af0;
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+.bubble a:hover {
+  color: #a78bfa;
+}
