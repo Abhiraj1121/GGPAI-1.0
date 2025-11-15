@@ -1,17 +1,64 @@
-<!Document html>
-<html>
-  <head>
-    <title>Maintenance</title>
-    <style>
-      body {
-        font-family: sans-serif;
-        text-align: center;
-        margin-top: 100px;
-      }
-    </style>
-  </head>
-  <body>
-    <h1> Site Under Maintenance</h1>
-    <p>we'll be back soon!</p>
-  </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Swastik AI - Maintenance</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #ff66c4, #8a2be2, #00b4ff, #000000);
+      background-size: 400% 400%;
+      animation: gradientBG 12s ease infinite;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      padding: 40px 50px;
+      border-radius: 20px;
+      box-shadow: 0 0 25px rgba(0,0,0,0.3);
+      max-width: 450px;
+    }
+
+    .icon {
+      font-size: 80px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <div class="icon">🚧</div>
+    <h1>Swastik AI is Under Maintenance</h1>
+    <p>The site is currently under maintenance. We’ll get back to you soon!</p>
+  </div>
+
+</body>
 </html>
