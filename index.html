@@ -2,47 +2,46 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>Swastik • Upgrading Intelligence...</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --accent: #7f5af0;
-      --accent-glow: #a78bfa;
-      --glass: rgba(10, 15, 35, 0.78);
-      --glass-border: rgba(127, 90, 240, 0.25);
-      --text: #e0e7ff;
-      --text-dim: #94a3b8;
-      --bg-gradient: linear-gradient(135deg, #0f172a, #1e1b4b);
+    /* LOCK EVERYTHING – NO SCROLL EVER */
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      height: 100dvh;           /* uses dynamic viewport height */
+      overflow: hidden !important;   /* force no scroll */
+      position: fixed;
+      width: 100%;
     }
 
-    * { margin:0; padding:0; box-sizing:border-box; }
     body {
       font-family: 'Inter', sans-serif;
-      background: var(--bg-gradient);
-      color: var(--text);
-      height: 100dvh;
+      background: linear-gradient(135deg, #0f172a, #1e1b4b);
+      color: #e0e7ff;
       display: grid;
       place-items: center;
-      overflow: hidden;
       position: relative;
     }
 
-    /* Same rain video background as the real app (dark mode) */
+    /* Full-screen video background */
     #bgVideo {
       position: fixed;
       top: 50%; left: 50%;
       min-width: 100%; min-height: 100%;
+      width: auto; height: auto;
       transform: translate(-50%, -50%);
       object-fit: cover;
       z-index: -2;
       filter: brightness(0.4) blur(1px);
     }
 
-    /* Subtle moving gradient overlay for depth */
+    /* Subtle moving overlay */
     body::before {
       content: "";
-      position: absolute;
+      position: fixed;
       inset: 0;
       background: linear-gradient(45deg, rgba(127,90,240,0.08), transparent 30%, rgba(6,214,160,0.06));
       background-size: 300% 300%;
@@ -51,38 +50,34 @@
     }
     @keyframes slowMove { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
 
-    .container {
-      text-align: center;
-      padding: 3rem 2rem;
-      max-width: 620px;
-      z-index: 10;
-    }
-
-    /* Glassmorphic Card – exactly like the real app */
+    /* Main card – perfectly centered, no overflow */
     .card {
-      background: var(--glass);
+      background: rgba(10, 15, 35, 0.78);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border-radius: 20px;
-      border: 1px solid var(--glass-border);
+      border: 1px solid rgba(127, 90, 240, 0.25);
       padding: 3rem 2.5rem;
-      box-shadow: 
-        0 8px 32px rgba(0,0,0,0.6),
-        0 0 60px rgba(127,90,240,0.25);
+      max-width: 620px;
+      width: 90%;
+      max-height: 90dvh;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 60px rgba(127,90,240,0.25);
       animation: cardPulse 4s ease-in-out infinite;
+      overflow: hidden;               /* extra safety */
+      box-sizing: border-box;
     }
     @keyframes cardPulse {
       0%,100% { box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 60px rgba(127,90,240,0.25); }
       50% { box-shadow: 0 12px 48px rgba(0,0,0,0.7), 0 0 90px rgba(127,90,240,0.45); }
     }
 
-    /* Logo with glow */
     .logo {
       width: 110px;
       height: 110px;
       border-radius: 20px;
       object-fit: cover;
       margin: 0 auto 1.8rem;
+      display: block;
       box-shadow: 0 0 40px rgba(127,90,240,0.6);
       animation: logoFloat 5s ease-in-out infinite;
     }
@@ -99,31 +94,32 @@
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
+      text-align: center;
     }
     h2 {
       font-size: 1.2rem;
       font-weight: 300;
-      color: var(--text-dim);
+      color: #94a3b8;
       letter-spacing: 5px;
       text-transform: uppercase;
       margin-bottom: 2rem;
+      text-align: center;
     }
 
     p {
       font-size: 1.2rem;
       line-height: 1.7;
-      color: var(--text-dim);
+      color: #94a3b8;
       margin: 1.8rem 0;
+      text-align: center;
     }
 
-    /* Glowing RGB Progress Bar – matches your send button */
     .progress {
       height: 7px;
       background: rgba(255,255,255,0.1);
       border-radius: 4px;
       overflow: hidden;
       margin: 2.5rem 0;
-      position: relative;
     }
     .progress::before {
       content: "";
@@ -132,63 +128,58 @@
       background: linear-gradient(90deg, #ff004d, #ff8c00, #ffee00, #40e0d0, #7f5af0, #ff004d);
       background-size: 600%;
       animation: rgbFlow 8s linear infinite;
-      border-radius: 4px;
     }
     @keyframes rgbFlow { 0%{background-position:0% 50%} 100%{background-position:100% 50%} }
 
     .status {
       font-size: 1.05rem;
-      color: var(--accent-glow);
+      color: #a78bfa;
       font-weight: 500;
       letter-spacing: 1px;
+      text-align: center;
     }
 
     footer {
-      margin-top: 4rem;
+      margin-top: 3rem;
       font-size: 0.9rem;
-      color: var(--text-dim);
+      color: #94a3b8;
+      text-align: center;
       opacity: 0.8;
     }
-    footer a {
-      color: var(--accent);
-      text-decoration: none;
-    }
+    footer a { color: #7f5af0; text-decoration: none; }
     footer a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
 
-  <!-- Same beautiful rain video background as your dark mode app -->
   <video autoplay muted loop playsinline id="bgVideo">
     <source src="https://motionbgs.com/media/7362/hydrangeas-rain.960x540.mp4" type="video/mp4">
   </video>
 
-  <div class="container">
-    <div class="card">
-      <img src="static/Swastik.jpg" alt="Swastik" class="logo" />
+  <div class="card">
+    <img src="static/Swastik.jpg" alt="Swastik" class="logo" />
 
-      <h1>Swastik</h1>
-      <h2>Intelligence Upgrade in Progress</h2>
+    <h1>Swastik</h1>
+    <h2>Intelligence Upgrade in Progress</h2>
 
-      <p>
-        We're making Swastik even smarter — training on new school data,<br>
-        improving voice recognition, and polishing every detail.
-      </p>
+    <p>
+      We're making Swastik even smarter — training on new school data,<br>
+      improving voice recognition, and polishing every detail.
+    </p>
 
-      <div class="progress"></div>
+    <div class="progress"></div>
 
-      <div class="status">Neural Enhancement • Running smoothly</div>
+    <div class="status">Neural Enhancement • Running smoothly</div>
 
-      <p style="margin-top: 2.5rem;">
-        Back in a few minutes.<br>
-        Thank you for your patience — greatness takes time ♡
-      </p>
+    <p style="margin-top: 2.5rem;">
+      Back in a few minutes.<br>
+      Thank you for your patience — greatness takes time ♡
+    </p>
 
-      <footer>
-        © 2025 <strong>Swastik</strong> • Guru Gobind Singh Public School, Sector 5<br>
-        Made with passion by Abhi Raj Singh and Team • <a href="https://github.com/Abhiraj1121" target="_blank">@Abhiraj1121</a>
-      </footer>
-    </div>
+    <footer>
+      © 2025 <strong>Swastik</strong> • Guru Gobind Singh Public School, Sector 5<br>
+      Made with passion by Abhi Raj Singh • <a href="https://github.com/Abhiraj1121" target="_blank">@Abhiraj1121</a>
+    </footer>
   </div>
 
 </body>
