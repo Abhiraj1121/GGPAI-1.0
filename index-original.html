@@ -10,7 +10,10 @@
   <link rel="stylesheet" href="static/style.css" />
 </head>
 <video autoplay muted loop id="bgVideo">
-  <source src="https://motionbgs.com/media/7819/falls-of-the-forgotten-grove.960x540.mp4" type="video/mp4">
+  <source src="https://motionbgs.com/media/7362/hydrangeas-rain.960x540.mp4" type="video/mp4">
+</video>
+<video id="lightVideo" class="bg-video light-video" autoplay muted loop playsinline>
+  <source src="https://motionbgs.com/media/8251/dongbaek-egospicebush-limbus-company.960x540.mp4" type="video/mp4">
 </video>
 <body class="dark">
   <div class="app">
@@ -43,7 +46,7 @@
       </div>
 
       <div class="credits">
-        <small>© Swastik • All rights reserved</small>
+        <small>© 2025 Swastik • All rights reserved</small>
       </div>
     </aside>
 
@@ -69,9 +72,41 @@
           </div>
         </div>
         <div class="header-actions">
-          <button id="themeToggle" title="Toggle theme" role="button">☀️</button>
-          <button id="muteToggle" title="Toggle voice" role="button">🔊</button>
-          <button id="voiceOnlyToggle" title="Voice-only mode" role="button">🎙️</button>
+          <!-- 🌙 / ☀️ Theme -->
+<button id="themeToggle" class="icon-btn" title="Toggle Theme">
+  <svg id="themeIcon" xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+       viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="12" cy="12" r="5"></circle>
+    <line x1="12" y1="1" x2="12" y2="3"></line>
+    <line x1="12" y1="21" x2="12" y2="23"></line>
+    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+    <line x1="1" y1="12" x2="3" y2="12"></line>
+    <line x1="21" y1="12" x2="23" y2="12"></line>
+    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+  </svg>
+</button>
+
+<!-- 🔊 / 🔇 Mute -->
+<button id="muteToggle" class="icon-btn" title="Toggle Mute">
+  <svg id="muteIcon" xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+       viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+  </svg>
+</button>
+
+<!-- 🎙️ Voice Only Mode -->
+<button id="voiceOnlyToggle" class="icon-btn" title="Voice Only Mode">
+  <svg id="voiceIcon" xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+       viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+    <line x1="12" y1="19" x2="12" y2="23"/>
+    <line x1="8" y1="23" x2="16" y2="23"/>
+  </svg>
+</button>
+
           <select id="languageToggle" title="Choose language">
             <option value="auto" lang="en">Auto Detect</option>
             <option value="en" lang="en">English</option>
@@ -113,8 +148,26 @@
       </div>
     </main>
   </div>
+  <!-- Legal Footer -->
+<footer style="
+    width: 100%;
+    padding: 15px;
+    text-align: center;
+    margin-top: 40px;
+    font-size: 14px;
+    color: #fff;
+    opacity: 0.85;
+">
+    © 2025 Swastik • All Rights Reserved  
+    <br>
+    <a href="https://abhiraj1121.github.io/ai-tc/"
+       target="_blank"
+       style="color:#8fd3ff; text-decoration:none;">
+        Privacy Policy • Terms & Conditions
+    </a>
+</footer>
 
-  <!-- Script -->
-  <script src="static/script.js"></script>
+<!-- Script -->
+<script src="static/script.js"></script>
 </body>
 </html>
