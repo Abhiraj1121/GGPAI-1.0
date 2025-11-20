@@ -1,299 +1,374 @@
+// static/script.js – Final Version (2025) – Clickable Links + Perfect Mobile UX
 document.addEventListener('DOMContentLoaded', () => {
-  // 🔧 DOM Elements
+  // =================================================================
+  // 1. MOBILE KEYBOARD + AUTO-SCROLL
+  // =================================================================
   const chat = document.getElementById('chat');
-  const msg = document.getElementById('msg');
-  const send = document.getElementById('send');
-  const mic = document.getElementById('mic');
-  const micStatus = document.getElementById('mic-status');
-  const themeToggle = document.getElementById('themeToggle');
-  const muteToggle = document.getElementById('muteToggle');
-  const voiceOnlyToggle = document.getElementById('voiceOnlyToggle');
-  const languageToggle = document.getElementById('languageToggle');
-  const chips = document.querySelectorAll('.chip');
-  const avatar = document.querySelector('.avatar');
-  const listeningAnimation = document.getElementById('listeningAnimation');
-  const wakeMicButton = document.getElementById('wakeMicButton'); // ✅ added
+  let initialHeight = window.innerHeight;
 
-  // 🔁 State
-  let isMuted = false;
-  let voiceOnly = false;
-  let currentSpeech = null;
-  let typingBubble = null;
-  let recognition;
-
-  // 🖋 Typing Animation
-  function typeText(text, element, speed = 40, callback = null) {
-    let i = 0;
-    const interval = setInterval(() => {
-      if (i < text.length) {
-        element.innerHTML += text.charAt(i);
-        i++;
-      } else {
-        clearInterval(interval);
-        if (callback) callback();
-      }
-    }, speed);
-  }
-
-  // 💬 Chat Bubble
-  function addBubble(text, who = 'bot', meta = '', animate = false) {
-    if (voiceOnly) return;
-    const b = document.createElement('div');
-    b.className = `bubble ${who}`;
-    const content = document.createElement('div');
-    content.className = 'ai-text';
-    b.appendChild(content);
-
-    if (animate && who === 'bot') {
-      typeText(text, content, 40, () => {
-        if (meta) {
-          const metaDiv = document.createElement('div');
-          metaDiv.className = 'meta';
-          metaDiv.innerHTML = meta;
-          b.appendChild(metaDiv);
-        }
-      });
-    } else {
-      content.innerHTML = text;
-      if (meta) {
-        const metaDiv = document.createElement('div');
-        metaDiv.className = 'meta';
-        metaDiv.innerHTML = meta;
-        b.appendChild(metaDiv);
-      }
-    }
-
-    chat.appendChild(b);
-    autoScroll();
-    chat.scrollTop = chat.scrollHeight;
-  }
-
-  function addTyping() {
-    if (voiceOnly) return;
-    typingBubble = document.createElement('div');
-    typingBubble.className = 'bubble bot typing';
-    typingBubble.innerHTML = `
-      <div style="display:flex;align-items:center;gap:8px">
-      <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-      </div>`;
-    chat.appendChild(typingBubble);
-
+  const scrollToBottom = () => {
     requestAnimationFrame(() => {
       chat.scrollTop = chat.scrollHeight;
     });
-  }
+  };
 
-  function removeTyping() {
-    if (typingBubble) {
-      typingBubble.remove();
-      typingBubble = null;
+  const observer = new MutationObserver(scrollToBottom);
+  observer.observe(chat, { childList: true, subtree: true });
+
+  // Adjust padding when keyboard opens
+  window.visualViewport?.addEventListener('resize', () => {
+    const diff = initialHeight - window.visualViewport.height;
+    chat.style.paddingBottom = diff > 100 ? `${diff + 140}px` : '140px';
+    scrollToBottom();
+  });
+
+  scrollToBottom();
+
+  // =================================================================
+  // 2. SWASTIK APP CORE – Enhanced with Clickable Links
+  // =================================================================
+  class SwastikApp {
+    constructor() {
+      this.messages = [];
+      this.recognition = null;
+      this.listening = false;
+      this.isMuted = false;
+      this.HISTORY_KEY = 'swastik_chat_history';
+      this.HISTORY_LIMIT = 30;
+
+      this.elements = this.getElements();
+      this.loadHistory();
+      this.initSpeech();
+      this.bindEvents();
+      this.addGreeting();
     }
-  }
 
-  // 📤 Send Message
-  async function sendMessage(text) {
-    const cleaned = text.trim();
-    if (!cleaned) {
-      addBubble('Swastik: Please enter a valid question.', 'bot');
-      return;
+    getElements() {
+      return {
+        chat: document.getElementById('chat'),
+        input: document.getElementById('msg'),
+        send: document.getElementById('send'),
+        mic: document.getElementById('mic'),
+        swastikCore: document.getElementById('swastikCore'),
+        voiceStatus: document.getElementById('voiceStatus'),
+        voiceCore: document.getElementById('voiceCore'),
+        themeToggle: document.getElementById('themeToggle'),
+        muteToggle: document.getElementById('muteToggle'),
+        openMenu: document.getElementById('openMenu'),
+        closeMenu: document.getElementById('closeMenu'),
+        menuBackdrop: document.getElementById('menuBackdrop'),
+        mobileMenu: document.getElementById('mobileMenu'),
+        themeToggleMenu: document.getElementById('themeToggleMenu'),
+        muteToggleMenu: document.getElementById('muteToggleMenu'),
+        voiceOnlyToggleMenu: document.getElementById('voiceOnlyToggleMenu'),
+        clearHistoryMenu: document.getElementById('clearHistoryMenu'),
+        closeVoice: document.getElementById('closeVoice'),
+        voiceOverlay: document.getElementById('voiceOverlay'),
+        chips: document.querySelectorAll('.chip')
+      };
     }
 
-    window.speechSynthesis.cancel();
-    removeTyping();
+    // Auto-link URLs, phone numbers, and emails
+    linkifyText(text) {
+      if (!text) return text;
 
-    addBubble(`You: ${cleaned}`, 'user', new Date().toLocaleTimeString());
-    msg.value = '';
-    addTyping();
-
-    try {
-      const res = await fetch('https://ggpai-1-0.onrender.com/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: cleaned })
-      }).then(r => r.json());
-
-      removeTyping();
-      const isHindi = /[\u0900-\u097F]/.test(res.reply);
-
-      setTimeout(() => {
-  addBubble(
-    `Swastik: ${res.reply}`,
-    'bot',
-    isHindi ? '🗣️ Spoken in Hindi' : '🗣️ Spoken in English',
-    true
-  );
-
-  // 🧹 Clean text before speaking (remove markdown and HTML)
-  const cleanReply = res.reply
-    .replace(/(\*\*|__|[_*`])/g, '')  // remove markdown like **, _, *
-    .replace(/<[^>]*>/g, '');         // remove any HTML tags
-
-  speak(cleanReply);
-}, 500);
-    } catch (err) {
-      removeTyping();
-      addBubble('Swastik: Sorry, something went wrong. Try again.', 'bot');
-      console.error("Error sending message:", err);
-    }
-  }
-
-  // 🔊 Speak Response
-  function speak(text) {
-    if (!text || !('speechSynthesis' in window) || isMuted) return;
-
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.rate = 1.0;
-    utter.pitch = 1.2;
-
-    const selectedLang = languageToggle?.value || 'auto';
-    const isHindi = /[\u0900-\u097F]/.test(text);
-    utter.lang = selectedLang === 'en' ? 'en-GB' :
-                 selectedLang === 'hi' ? 'hi-IN' :
-                 isHindi ? 'hi-IN' : 'en-GB';
-
-    const setVoice = () => {
-      const voices = speechSynthesis.getVoices();
-      const preferred = voices.find(v =>
-        utter.lang === 'hi-IN'
-          ? v.lang === 'hi-IN' || v.name.includes('Hindi')
-          : v.name === 'Google UK English Female'
+      // URLs (http, https)
+      text = text.replace(
+        /(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/g,
+        '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'
       );
-      if (preferred) utter.voice = preferred;
 
-      avatar?.classList.add('voice-anim');
-      listeningAnimation.style.display = 'block';
-      speechSynthesis.cancel();
-      speechSynthesis.speak(utter);
-      currentSpeech = utter;
+      // Phone numbers (Indian +91 or plain 10-digit)
+      text = text.replace(
+        /(\+91[-\s]?[0-9]{5}[-\s]?[0-9]{5}|[0-9]{10})/g,
+        '<a href="tel:$1">$1</a>'
+      );
 
-      utter.onend = () => {
-        avatar?.classList.remove('voice-anim');
-        listeningAnimation.style.display = 'none';
-        if (voiceOnly && recognition) {
-          wakeMicButton.style.display = 'flex'; // ✅ show wake mic when done speaking
+      // Email addresses
+      text = text.replace(
+        /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g,
+        '<a href="mailto:$1">$1</a>'
+      );
+
+      return text;
+    }
+
+    bindEvents() {
+      this.elements.send.addEventListener('click', () => this.send());
+      this.elements.input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          this.send();
+        }
+      });
+
+      // Voice input (hold mic or orb)
+      ['mousedown', 'touchstart'].forEach(ev =>
+        this.elements.mic.addEventListener(ev, (e) => {
+          e.preventDefault();
+          this.startListening();
+        })
+      );
+      ['mouseup', 'touchend', 'mouseleave'].forEach(ev =>
+        this.elements.mic.addEventListener(ev, (e) => {
+          e.preventDefault();
+          this.stopListening();
+        })
+      );
+
+      if (this.elements.voiceCore) {
+        ['mousedown', 'touchstart'].forEach(ev =>
+          this.elements.voiceCore.addEventListener(ev, (e) => {
+            e.preventDefault();
+            this.startListening(true);
+          })
+        );
+        ['mouseup', 'touchend', 'mouseleave'].forEach(ev =>
+          this.elements.voiceCore.addEventListener(ev, (e) => {
+            e.preventDefault();
+            this.stopListening();
+          })
+        );
+      }
+
+      // Menu & overlay controls
+      this.elements.openMenu?.addEventListener('click', () => this.openMenu());
+      this.elements.closeMenu?.addEventListener('click', () => this.closeMenu());
+      this.elements.menuBackdrop?.addEventListener('click', () => this.closeMenu());
+      this.elements.closeVoice?.addEventListener('click', () => this.closeVoiceOverlay());
+      this.elements.swastikCore?.addEventListener('click', () => this.openVoiceOverlay());
+
+      // Settings
+      [this.elements.themeToggle, this.elements.themeToggleMenu].forEach(btn =>
+        btn?.addEventListener('click', () => this.toggleTheme())
+      );
+      [this.elements.muteToggle, this.elements.muteToggleMenu].forEach(btn =>
+        btn?.addEventListener('click', () => this.toggleMute())
+      );
+      this.elements.voiceOnlyToggleMenu?.addEventListener('click', () => this.toggleVoiceOverlay());
+      this.elements.clearHistoryMenu?.addEventListener('click', () => this.clearHistory());
+
+      // Quick questions
+      this.elements.chips.forEach(chip => {
+        chip.addEventListener('click', () => {
+          const q = chip.dataset.q;
+          if (q) this.send(q);
+          this.closeMenu();
+        });
+      });
+
+      this.elements.input.focus();
+    }
+
+    async send(text = null) {
+      const msg = (text || this.elements.input.value.trim());
+      if (!msg) return;
+
+      this.messages.push({ role: 'user', content: msg });
+      this.addBubble(this.linkifyText(msg), 'user');
+      this.elements.input.value = '';
+
+      const typingBubble = this.addBubble('', 'bot');
+
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: msg,
+            history: this.messages.slice(-this.HISTORY_LIMIT)
+          })
+        });
+        const data = await res.json();
+
+        typingBubble.remove();
+
+        const reply = data.reply || "Sorry, I couldn't respond.";
+        this.messages.push({ role: 'assistant', content: reply });
+        this.addBubble(reply, 'bot'); // Now with linkify
+        if (!this.isMuted) this.speak(reply);
+      } catch (err) {
+        typingBubble.remove();
+        this.addBubble('Connection error. Please try again.', 'bot');
+      }
+      this.saveHistory();
+    }
+
+    // Enhanced bubble with clickable links
+    addBubble(text, type) {
+      const bubble = document.createElement('div');
+      bubble.className = `bubble ${type}`;
+      const time = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+
+      if (type === 'bot' && text) {
+        bubble.innerHTML = `
+          <div class="typing-container">
+            <span class="typing-text"></span>
+            <span class="typing-cursor">|</span>
+          </div>
+          <div class="meta">${time}</div>
+        `;
+        this.elements.chat.appendChild(bubble);
+        const typingText = bubble.querySelector('.typing-text');
+
+        // Type first, then convert to clickable links
+        this.typeReply(typingText, text, () => {
+          typingText.innerHTML = this.linkifyText(text);
+          scrollToBottom();
+        });
+      } else {
+        const content = text ? this.linkifyText(text) : '';
+        bubble.innerHTML = content
+          ? `<div>${content}</div><div class="meta">${time}</div>`
+          : `<div class="typing-container"><span class="typing-text"></span><span class="typing-cursor">|</span></div><div class="meta">${time}</div>`;
+        this.elements.chat.appendChild(bubble);
+        if (!text) scrollToBottom();
+      }
+      return bubble;
+    }
+
+    // Typing animation with callback when done
+    typeReply(element, text, onComplete = null) {
+      let i = 0;
+      const cursor = element.parentNode.querySelector('.typing-cursor');
+      cursor.style.animation = 'blink 1s step-end infinite';
+
+      const type = () => {
+        if (i < text.length) {
+          element.textContent += text.charAt(i);
+          i++;
+          scrollToBottom();
+          setTimeout(type, 25 + Math.random() * 25);
+        } else {
+          cursor.style.display = 'none';
+          if (onComplete) onComplete();
         }
       };
-    };
-
-    if (speechSynthesis.getVoices().length === 0) {
-      speechSynthesis.onvoiceschanged = setVoice;
-    } else {
-      setVoice();
+      setTimeout(type, 300);
     }
-  }
 
-  // 🎤 Voice Recognition
-  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    recognition = new SR();
-    recognition.lang = 'en-IN';
-    recognition.interimResults = false;
+    speak(text) {
+      if (this.isMuted || !('speechSynthesis' in window)) return;
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = /[अ-ह]/.test(text) ? 'hi-IN' : 'en-IN';
+      utter.rate = 0.95;
+      speechSynthesis.cancel();
+      speechSynthesis.speak(utter);
+    }
 
-    recognition.onstart = () => {
-      mic.classList.add('mic-active');
-      micStatus.textContent = '🎤 Listening...';
-      listeningAnimation.style.display = 'block';
-      wakeMicButton.style.display = 'none'; // ✅ hide wake mic when listening
-    };
+    // Speech Recognition (unchanged)
+    initSpeech() {
+      if (!('webkitSpeechRecognition' in window)) return;
+      const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+      this.recognition = new Rec();
+      this.recognition.lang = 'en-IN';
+      this.recognition.continuous = false;
+      this.recognition.interimResults = false;
 
-    recognition.onresult = e => {
-      const transcript = e.results[0][0].transcript;
-      msg.value = transcript;
-      sendMessage(transcript);
-    };
+      this.recognition.onstart = () => {
+        this.listening = true;
+        this.elements.mic?.classList.add('listening');
+        this.elements.swastikCore?.classList.replace('idle', 'listening');
+        this.elements.voiceCore?.classList.replace('idle', 'listening');
+        this.elements.voiceStatus.textContent = 'Listening...';
+      };
 
-    recognition.onend = () => {
-      mic.classList.remove('mic-active');
-      micStatus.textContent = '';
-      listeningAnimation.style.display = 'none';
+      this.recognition.onresult = (e) => {
+        const transcript = e.results[0][0].transcript.trim();
+        this.send(transcript);
+      };
 
-      if (voiceOnly) {
-        wakeMicButton.style.display = 'flex'; // ✅ show wake mic after timeout
+      this.recognition.onerror = this.recognition.onend = () => {
+        this.stopListening();
+      };
+    }
+
+    startListening(voiceMode = false) {
+      if (this.listening || !this.recognition) return;
+      if (voiceMode) this.openVoiceOverlay();
+      this.recognition.start();
+    }
+
+    stopListening() {
+      if (!this.listening) return;
+      this.recognition?.stop();
+      this.listening = false;
+      this.elements.mic?.classList.remove('listening');
+      this.elements.swa
+stikCore?.classList.replace('listening', 'idle');
+      this.elements.voiceCore?.classList.replace('listening', 'idle');
+      this.elements.voiceStatus.textContent = 'Ready to chat';
+    }
+
+    openMenu() { this.elements.mobileMenu.classList.add('open'); this.elements.menuBackdrop.classList.add('active'); }
+    closeMenu() { this.elements.mobileMenu.classList.remove('open'); this.elements.menuBackdrop.classList.remove('active'); }
+    openVoiceOverlay() { this.elements.voiceOverlay.classList.add('active'); }
+    closeVoiceOverlay() { this.elements.voiceOverlay.classList.remove('active'); this.stopListening(); }
+    toggleVoiceOverlay() { this.elements.voiceOverlay.classList.contains('active') ? this.closeVoiceOverlay() : this.openVoiceOverlay(); }
+
+    toggleTheme() {
+      document.body.classList.toggle('light');
+      const isLight = document.body.classList.contains('light');
+      const icon = isLight
+        ? `<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`
+        : `<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42m12.72-12.72l1.42-1.42"/></svg>`;
+      const label = isLight ? 'Dark Mode' : 'Light Mode';
+      [this.elements.themeToggle, this.elements.themeToggleMenu].forEach(el => {
+        if (el) {
+          el.innerHTML = `${icon} <span class="label">${label}</span>`;
+          el.title = label;
+        }
+      });
+    }
+
+    toggleMute() {
+      this.isMuted = !this.isMuted;
+      const icon = this.isMuted
+        ? `<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M1 12h22"/></svg>`
+        : `<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>`;
+      const label = this.isMuted ? 'Unmute' : 'Mute';
+      [this.elements.muteToggle, this.elements.muteToggleMenu].forEach(el => {
+        if (el) {
+          el.innerHTML = `${icon} <span class="label">${label}</span>`;
+          el.title = label;
+        }
+      });
+      if (this.isMuted) speechSynthesis.cancel();
+    }
+
+    clearHistory() {
+      this.messages = [];
+      this.elements.chat.innerHTML = '';
+      this.addBubble('Chat cleared!', 'bot');
+      localStorage.removeItem(this.HISTORY_KEY);
+      this.closeMenu();
+    }
+
+    saveHistory() {
+      localStorage.setItem(this.HISTORY_KEY, JSON.stringify(this.messages.slice(-this.HISTORY_LIMIT)));
+    }
+
+    loadHistory() {
+      try {
+        const saved = localStorage.getItem(this.HISTORY_KEY);
+        if (saved) {
+          this.messages = JSON.parse(saved);
+          this.messages.forEach(m => this.addBubble(m.content, m.role === 'assistant' ? 'bot' : 'user'));
+        }
+      } catch (e) {
+        console.error('History load failed', e);
       }
-    };
+    }
 
-    recognition.onerror = () => {
-      mic.classList.remove('mic-active');
-      micStatus.textContent = '';
-      listeningAnimation.style.display = 'none';
-      addBubble('Swastik: Voice input failed. Try typing instead.', 'bot');
-    };
-
-    mic.addEventListener('click', () => recognition.start());
-
-    // ✅ Wake Mic Button click
-    wakeMicButton.addEventListener('click', () => {
-      if (recognition && voiceOnly) {
-        wakeMicButton.style.display = 'none';
-        recognition.start();
+    addGreeting() {
+      if (this.messages.length === 0) {
+        this.addBubble('Hi! I am Swastik. Hold mic or tap orb to talk. Or type below!', 'bot');
       }
-    });
-  } else {
-    mic.style.opacity = 0.45;
-    mic.title = 'Voice input not supported';
-  }
-
-  // 🧠 UI Event Listeners
-  send.addEventListener('click', () => sendMessage(msg.value));
-  msg.addEventListener('keydown', e => {
-    if (e.key === 'Enter') sendMessage(msg.value);
-  });
-
-  themeToggle.addEventListener('click', () => {
-    document.body.classList.toggle('dark');
-    themeToggle.textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
-  });
-
-  muteToggle.addEventListener('click', () => {
-    isMuted = !isMuted;
-    muteToggle.textContent = isMuted ? '🔇' : '🔊';
-  });
-
-  voiceOnlyToggle.addEventListener('click', () => {
-    voiceOnly = !voiceOnly;
-    document.body.classList.toggle('voice-only', voiceOnly);
-
-    if (voiceOnly && recognition) {
-      listeningAnimation.style.display = 'block';
-      speak("Hello, I’m Swastik. I’m listening.");
-      wakeMicButton.style.display = 'none';
-    } else {
-      wakeMicButton.style.display = 'none';
-    }
-  });
-  // 🎹 Keyboard Shortcut — Spacebar activates Wake Mic
-document.addEventListener('keydown', (event) => {
-  // Check if Spacebar is pressed, and no input box is focused
-  if (event.code === 'Space' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
-    event.preventDefault(); // prevent page scroll
-
-    if (voiceOnly && recognition && wakeMicButton.style.display === 'flex') {
-      // Trigger the same behavior as clicking the wake mic
-      wakeMicButton.click();
     }
   }
-});
 
-
-
-  chips.forEach(c => c.addEventListener('click', () => {
-    const q = c.dataset.q;
-    msg.value = q;
-    sendMessage(q);
-  }));
-
-  themeToggle.textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
-
-  addBubble('Sir/Mam Hello, I am Swastik your AI Chat bot for G.G.P.School Bokaro','bot','',true);
-});
-
-function autoScroll() {
-  const chat = document.getElementById('chat');
-  requestAnimationFrame(() => {
-    chat.scrollTop = chat.scrollHeight;
-  });
-}
-
-window.addEventListener('load', () => {
-  listeningAnimation.style.display = 'none';
+  // =================================================================
+  // 3. LAUNCH SWASTIK
+  // =================================================================
+  new SwastikApp();
 });
